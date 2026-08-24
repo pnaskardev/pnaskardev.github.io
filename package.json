@@ -7,7 +7,8 @@
     "dev": "astro dev",
     "build": "astro check && astro build",
     "preview": "astro preview",
-    "check": "astro check"
+    "check": "astro check",
+    "import": "node scripts/import-posts.mjs"
   },
   "dependencies": {
     "@astrojs/mdx": "^7.0.7",
@@ -27,6 +28,8 @@
   },
   "devDependencies": {
     "@astrojs/check": "^0.9.10",
+    "fast-xml-parser": "^5.11.0",
+    "turndown": "^7.2.4",
     "typescript": "^6.0.3"
   }
 }

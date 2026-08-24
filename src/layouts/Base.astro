@@ -11,6 +11,11 @@ interface Props {
   ogImage?: string;
   /** Set on article pages so search engines get the right type. */
   type?: 'website' | 'article';
+  /**
+   * Overrides the canonical URL. Set by imported posts so search engines
+   * credit the platform they were first published on.
+   */
+  canonicalUrl?: string;
 }
 
 const {
@@ -18,10 +23,12 @@ const {
   description = site.description,
   ogImage = '/og.png',
   type = 'website',
+  canonicalUrl,
 } = Astro.props;
 
 const pageTitle = title ? `${title} · ${site.name}` : site.name;
-const canonical = new URL(Astro.url.pathname, Astro.site).href;
+const selfUrl = new URL(Astro.url.pathname, Astro.site).href;
+const canonical = canonicalUrl ?? selfUrl;
 const ogUrl = new URL(ogImage, Astro.site).href;
 ---
 
@@ -41,7 +48,12 @@ const ogUrl = new URL(ogImage, Astro.site).href;
     <meta property="og:type" content={type} />
     <meta property="og:title" content={pageTitle} />
     <meta property="og:description" content={description} />
-    <meta property="og:url" content={canonical} />
+    {/*
+      Deliberately selfUrl, not canonical. An imported post credits the original
+      platform for search engines, but a share card should describe the page
+      actually being shared, not send the reader somewhere else.
+    */}
+    <meta property="og:url" content={selfUrl} />
     <meta property="og:image" content={ogUrl} />
     <meta name="twitter:card" content="summary_large_image" />
 

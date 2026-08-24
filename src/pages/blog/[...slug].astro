@@ -27,9 +27,21 @@ const readingTime: string | undefined = remarkPluginFrontmatter?.readingTime;
 
 /** Only h2s, and only when there are enough of them to be worth the space. */
 const toc = headings.filter((h) => h.depth === 2);
+
+const SOURCE_LABELS: Record<string, string> = {
+  medium: 'Medium',
+  hashnode: 'Hashnode',
+  linkedin: 'LinkedIn',
+};
+const sourceLabel = post.data.source ? SOURCE_LABELS[post.data.source] : undefined;
 ---
 
-<Base title={post.data.title} description={post.data.description} type="article">
+<Base
+  title={post.data.title}
+  description={post.data.description}
+  type="article"
+  canonicalUrl={post.data.canonicalUrl}
+>
   <article class="mx-auto max-w-[1180px] px-5 pt-12 pb-24 sm:px-8 sm:pt-16 sm:pb-32">
     <a
       href="/blog"
@@ -62,6 +74,22 @@ const toc = headings.filter((h) => h.depth === 2);
         post.data.updatedDate && (
           <p class="mt-2 font-mono text-xs text-faint">
             Updated {fmt(post.data.updatedDate)}
+          </p>
+        )
+      }
+
+      {
+        post.data.canonicalUrl && (
+          <p class="mt-4 font-mono text-xs text-faint">
+            Originally published on{' '}
+            <a
+              href={post.data.canonicalUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              class="text-muted underline decoration-line underline-offset-4 transition-colors hover:text-accent hover:decoration-accent"
+            >
+              {sourceLabel ?? 'another site'}
+            </a>
           </p>
         )
       }
