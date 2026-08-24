@@ -12,8 +12,7 @@ export const site = {
   description:
     'Developer. Writing about the systems I build and the ones I take apart.',
 
-  /* TODO(you): swap in the address you want public. */
-  email: 'you@example.com',
+  email: 'pnaskardev@gmail.com',
 
   /** One or two lines. This is the hero headline, so keep it short. */
   headline: 'I build backends that stay boring under load.',
@@ -42,8 +41,12 @@ export type SocialLink = {
 
 export const socials: SocialLink[] = [
   { label: 'GitHub', href: 'https://github.com/pnaskardev', icon: 'ph:github-logo' },
-  { label: 'LinkedIn', href: 'https://linkedin.com/in/pnaskardev', icon: 'ph:linkedin-logo' },
-  { label: 'X', href: 'https://x.com/pnaskardev', icon: 'ph:x-logo' },
+  {
+    label: 'LinkedIn',
+    href: 'https://www.linkedin.com/in/priyanshu-naskar-a679991b7',
+    icon: 'ph:linkedin-logo',
+  },
+  { label: 'X', href: 'https://x.com/PriyanshuNaska9', icon: 'ph:x-logo' },
 ];
 
 export type Project = {
