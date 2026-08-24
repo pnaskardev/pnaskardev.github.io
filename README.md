@@ -21,7 +21,8 @@ npm run check    # type-check .astro and .ts files
 | How many posts the home page lists | `HOME_POST_COUNT` in `src/site.config.ts` |
 | The "Now" section | `now` in `src/site.config.ts` |
 | Social links | `socials` in `src/site.config.ts` |
-| Blog posts | `src/content/blog/*.md` |
+| Blog posts | **Hashnode** — write there, they appear here |
+| Which Hashnode blog to pull from | `hashnodeHost` in `src/site.config.ts` |
 | Colors, type, spacing | the `@theme` block in `src/styles/global.css` |
 
 Nothing on the home page is hardcoded in a component. Change
@@ -36,30 +37,34 @@ rather than a gallery.
 
 ## Writing a post
 
-Create `src/content/blog/my-post.md`. The filename becomes the URL
-(`/blog/my-post/`).
+Posts are **not stored in this repo**. Hashnode is the CMS; this site is the
+renderer. Write and publish on Hashnode and the post shows up here on the next
+build.
 
-```markdown
----
-title: 'How the scheduler drifts'
-description: 'One or two sentences. Shown on the index and in link previews.'
-pubDate: 2026-09-01
-tags: ['go', 'scheduling']
-draft: false
----
+The feed is fetched by `src/loaders/hashnode.ts`, a custom Astro content
+loader. Remote posts go through the same markdown pipeline as a local file
+would: Shiki highlighting, reading-time estimate, table wrapping, and headings
+collected for the sidebar table of contents.
 
-Post body here.
-```
+Each post keeps its Hashnode URL as its `canonicalUrl`, so search engines
+credit the original and the page shows an "Originally published on Hashnode"
+line.
 
-`title`, `description`, and `pubDate` are required and validated at build time,
-so a typo fails the build rather than shipping a broken page. Set `draft: true`
-to keep a post out of the index, the home page, and the RSS feed while still
-previewing it locally.
+**What this costs, so it is not a surprise later:**
 
-Posts get a reading-time estimate automatically, and a table of contents
-appears in the sidebar once a post has three or more `##` headings.
+- The build makes a network call. If Hashnode is down or rate limiting, the
+  build **fails** rather than quietly shipping a site with posts missing. That
+  is deliberate: a green deploy that dropped your archive is worse.
+- Publishing on Hashnode does not update the site by itself. The deploy
+  workflow runs daily at 06:00 UTC to pick up new posts. To publish
+  immediately, run the workflow manually from the Actions tab.
+- Hashnode's RSS returns the **20 most recent posts**. Older ones will not
+  appear. Hashnode's GraphQL API would go further but has required a Pro plan
+  since 2026-05-13, reads included.
+- Images stay on Hashnode's CDN and are hotlinked.
 
-`.mdx` files work too if you need components inside a post.
+To point at a different publication, change `hashnodeHost` in
+`src/site.config.ts`.
 
 ## Images
 

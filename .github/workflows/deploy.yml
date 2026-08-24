@@ -4,6 +4,11 @@ on:
   push:
     branches: [main]
   workflow_dispatch:
+  # Posts live on Hashnode and are fetched at build time, so publishing there
+  # changes nothing here until a build runs. This picks up new posts daily.
+  # Use "Run workflow" on the Actions tab to publish one immediately.
+  schedule:
+    - cron: '0 6 * * *'
 
 permissions:
   contents: read

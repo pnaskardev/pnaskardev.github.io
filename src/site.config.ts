@@ -14,6 +14,12 @@ export const site = {
 
   email: 'pnaskardev@gmail.com',
 
+  /**
+   * Hashnode publication that supplies the blog. Posts are fetched from its
+   * RSS feed at build time; nothing is copied into this repo.
+   */
+  hashnodeHost: 'priyanshucodes.hashnode.dev',
+
   /** One or two lines. This is the hero headline, so keep it short. */
   headline: 'I build backends that stay boring under load.',
 

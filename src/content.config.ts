@@ -1,9 +1,16 @@
 import { defineCollection } from 'astro:content';
-import { glob } from 'astro/loaders';
 import { z } from 'zod';
+import { hashnodeLoader } from '~/loaders/hashnode';
+import { site } from '~/site.config';
 
+/**
+ * Posts come from Hashnode at build time. Nothing is stored in this repo, so
+ * there is no local copy to drift out of sync with the published original.
+ *
+ * See src/loaders/hashnode.ts for the tradeoffs this buys and costs.
+ */
 const blog = defineCollection({
-  loader: glob({ pattern: '**/*.{md,mdx}', base: './src/content/blog' }),
+  loader: hashnodeLoader({ host: site.hashnodeHost }),
   schema: z.object({
     title: z.string(),
     /** One or two sentences. Used on the index and in meta tags. */
@@ -15,20 +22,13 @@ const blog = defineCollection({
     /** Hides the post from the index and the feed, but still builds it. */
     draft: z.boolean().default(false),
 
-    /**
-     * Where this post was first published, for posts imported from elsewhere.
-     * Omit for anything written here first.
-     */
+    /** Where this post was first published. */
     source: z.enum(['medium', 'hashnode', 'linkedin']).optional(),
 
     /**
      * The original URL. Two effects when set: the page emits
      * <link rel="canonical"> pointing here instead of at this site, and the
      * post renders an "originally published on" line.
-     *
-     * Back catalogue keeps the original canonical so nothing loses the search
-     * position it already has. Posts written here first omit both fields and
-     * are canonical on this site.
      */
     canonicalUrl: z.string().url().optional(),
   }),
