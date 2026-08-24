@@ -181,6 +181,43 @@ function makeTurndown() {
   return td;
 }
 
+/**
+ * Shift headings so the shallowest one in the post becomes h2.
+ *
+ * Both platforms let you start a post at any level, and in practice posts come
+ * through using only h3 or only h4. That breaks two things: the page already
+ * renders the title as h1 so the outline skips levels, and the table of
+ * contents only collects h2s and would never appear.
+ *
+ * Headings inside fenced code are left alone -- a leading # there is a shell
+ * comment, not a heading.
+ */
+function normaliseHeadings(markdown) {
+  const parts = markdown.split(/(```[\s\S]*?```)/g);
+  const isFence = (part) => part.startsWith('```');
+
+  let min = 7;
+  for (const part of parts) {
+    if (isFence(part)) continue;
+    for (const [, hashes] of part.matchAll(/^(#{1,6})\s+\S/gm)) {
+      min = Math.min(min, hashes.length);
+    }
+  }
+
+  if (min > 6 || min === 2) return markdown;
+  const shift = 2 - min;
+
+  return parts
+    .map((part) => {
+      if (isFence(part)) return part;
+      return part.replace(/^(#{1,6})(\s+)/gm, (match, hashes, space) => {
+        const level = Math.min(6, Math.max(1, hashes.length + shift));
+        return `${'#'.repeat(level)}${space}`;
+      });
+    })
+    .join('');
+}
+
 /* --------------------------------------------------------------- images --- */
 
 /**
@@ -323,6 +360,8 @@ async function importFeed({ url, source }, { dry, existingSlugs }) {
       .replace(/```\n\n```[a-zA-Z0-9+#-]*\n/g, '\n')
       .replace(/\n{3,}/g, '\n\n')
       .trim();
+
+    markdown = normaliseHeadings(markdown);
 
     const images = await localiseImages(markdown, slug, { dry });
     markdown = images.markdown;
