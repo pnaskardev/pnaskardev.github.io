@@ -1,0 +1,32 @@
+---
+import { Icon } from 'astro-icon/components';
+import Base from '~/layouts/Base.astro';
+---
+
+<Base title="Not found" description="That page does not exist.">
+  <div
+    class="mx-auto flex min-h-[60dvh] max-w-[1180px] flex-col justify-center px-5 py-24 sm:px-8"
+  >
+    <p class="font-mono text-xs text-accent-dim tabular-nums">404</p>
+    <h1
+      class="mt-4 max-w-[16ch] text-3xl font-medium leading-[1.12] tracking-[-0.03em] text-ink sm:text-[2.5rem]"
+    >
+      That page does not exist.
+    </h1>
+    <p class="mt-5 max-w-[44ch] text-[17px] leading-relaxed text-muted">
+      The link may be out of date, or the page may have moved.
+    </p>
+    <a
+      href="/"
+      class="group mt-8 inline-flex w-fit items-center gap-2 text-sm text-muted transition-colors hover:text-accent"
+    >
+      <Icon
+        name="ph:arrow-left"
+        width={14}
+        height={14}
+        class="transition-transform duration-300 group-hover:-translate-x-1"
+      />
+      Back home
+    </a>
+  </div>
+</Base>

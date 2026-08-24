@@ -1,0 +1,59 @@
+<!doctype html>
+<!--
+  Source for public/og.png (the social share card).
+  Edit the text below, then regenerate from the repo root:
+
+    chromium --headless --disable-gpu --hide-scrollbars --allow-file-access-from-files \
+      --window-size=1200,630 --screenshot=public/og.png \
+      --virtual-time-budget=6000 file://$PWD/scripts/og.html
+
+  Font paths are relative to this file, so run it after `npm install`.
+-->
+<html>
+<head>
+<meta charset="utf-8">
+<style>
+  @font-face {
+    font-family: 'Geist';
+    src: url('../node_modules/@fontsource-variable/geist/files/geist-latin-wght-normal.woff2') format('woff2');
+    font-weight: 100 900;
+  }
+  @font-face {
+    font-family: 'GeistMono';
+    src: url('../node_modules/@fontsource-variable/geist-mono/files/geist-mono-latin-wght-normal.woff2') format('woff2');
+    font-weight: 100 900;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    width: 1200px; height: 630px;
+    background: #0c0d0f;
+    font-family: 'Geist', sans-serif;
+    display: flex; flex-direction: column; justify-content: space-between;
+    padding: 72px 80px;
+    position: relative;
+  }
+  body::after {
+    content: ''; position: absolute; left: 0; right: 0; bottom: 0;
+    height: 6px; background: #e9a23b;
+  }
+  .mark { font-family: 'GeistMono', monospace; font-size: 22px; color: #e9eaec; }
+  .mark span { color: #e9a23b; }
+  h1 {
+    font-size: 72px; font-weight: 500; letter-spacing: -0.035em;
+    line-height: 1.06; color: #e9eaec; max-width: 17ch;
+  }
+  .foot {
+    font-family: 'GeistMono', monospace; font-size: 19px; color: #7a7f85;
+    display: flex; gap: 28px;
+  }
+</style>
+</head>
+<body>
+  <div class="mark"><span>/</span>pnaskar</div>
+  <h1>I build backends that stay boring under load.</h1>
+  <div class="foot">
+    <span>Priyanshu Naskar</span>
+    <span>pnaskardev.github.io</span>
+  </div>
+</body>
+</html>

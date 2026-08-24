@@ -1,0 +1,120 @@
+---
+import { Icon } from 'astro-icon/components';
+import type { Project } from '~/site.config';
+
+interface Props {
+  projects: Project[];
+}
+
+const { projects } = Astro.props;
+const withImages = projects.filter((p) => p.image);
+---
+
+<!--
+  Asymmetric split: rows on the left, one sticky preview on the right.
+  The preview swaps on hover AND focus, so keyboard users get the same
+  information as mouse users. Below lg the preview column is dropped and each
+  row carries its own thumbnail instead.
+-->
+<div class="grid gap-x-14 lg:grid-cols-[1fr_minmax(0,26rem)]">
+  <ul data-work-list class="grid">
+    {
+      projects.map((project, i) => (
+        <li data-reveal style={`--reveal-delay:${i * 70}ms`}>
+          <a
+            href={project.href}
+            target={project.href.startsWith('http') ? '_blank' : undefined}
+            rel={project.href.startsWith('http') ? 'noopener noreferrer' : undefined}
+            data-work-index={i}
+            class="group block border-t border-line-soft py-7 transition-colors last:border-b hover:border-line focus-visible:border-line"
+          >
+            {project.image && (
+              <img
+                src={project.image.src}
+                alt={project.image.alt}
+                width="1200"
+                height="800"
+                loading="lazy"
+                decoding="async"
+                class="mb-5 aspect-[3/2] w-full rounded-[4px] border border-line object-cover lg:hidden"
+              />
+            )}
+
+            <div class="flex items-baseline justify-between gap-6">
+              <h3 class="text-lg font-medium tracking-tight text-ink transition-colors group-hover:text-accent sm:text-xl">
+                {project.title}
+              </h3>
+              <span class="shrink-0 font-mono text-xs text-faint tabular-nums">
+                {project.year}
+              </span>
+            </div>
+
+            <p class="mt-2 max-w-[52ch] text-[15px] leading-relaxed text-muted">
+              {project.blurb}
+            </p>
+
+            <div class="mt-4 flex items-center gap-4">
+              <span class="font-mono text-[11px] text-faint">
+                {project.stack.join('  /  ')}
+              </span>
+              <Icon
+                name="ph:arrow-up-right"
+                width={14}
+                height={14}
+                class="text-faint transition-all duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 group-hover:text-accent"
+              />
+            </div>
+          </a>
+        </li>
+      ))
+    }
+  </ul>
+
+  {
+    withImages.length > 0 && (
+      <div class="hidden lg:block">
+        <div class="sticky top-28 aspect-[3/2] w-full overflow-hidden rounded-[4px] border border-line bg-surface">
+          {withImages.map((project, i) => (
+            <img
+              data-preview-index={projects.indexOf(project)}
+              src={project.image!.src}
+              alt={project.image!.alt}
+              width="1200"
+              height="800"
+              loading={i === 0 ? 'eager' : 'lazy'}
+              decoding="async"
+              class="absolute inset-0 h-full w-full object-cover transition-opacity duration-500 ease-out"
+              style={`opacity:${i === 0 ? 1 : 0}`}
+            />
+          ))}
+        </div>
+      </div>
+    )
+  }
+</div>
+
+<script>
+  // Swaps the sticky preview to match the hovered or focused row.
+  // Opacity-only cross-fade: compositor work, no layout, no repaint.
+  const list = document.querySelector<HTMLElement>('[data-work-list]');
+  const previews = Array.from(
+    document.querySelectorAll<HTMLImageElement>('[data-preview-index]'),
+  );
+
+  if (list && previews.length) {
+    const show = (index: number) => {
+      for (const img of previews) {
+        img.style.opacity = img.dataset.previewIndex === String(index) ? '1' : '0';
+      }
+    };
+
+    const activate = (event: Event) => {
+      const link = (event.target as HTMLElement).closest<HTMLElement>('[data-work-index]');
+      if (!link) return;
+      show(Number(link.dataset.workIndex));
+    };
+
+    list.addEventListener('pointerover', activate);
+    list.addEventListener('focusin', activate);
+  }
+</script>

@@ -1,0 +1,75 @@
+---
+import { getCollection } from 'astro:content';
+import Base from '~/layouts/Base.astro';
+import PostRow from '~/components/PostRow.astro';
+
+const posts = (await getCollection('blog', ({ data }) => !data.draft)).sort(
+  (a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf(),
+);
+
+/** Group by year so a long archive reads as chapters, not one endless list. */
+const byYear = posts.reduce<Map<number, typeof posts>>((acc, post) => {
+  const year = post.data.pubDate.getFullYear();
+  const bucket = acc.get(year) ?? [];
+  bucket.push(post);
+  acc.set(year, bucket);
+  return acc;
+}, new Map());
+
+const years = [...byYear.keys()].sort((a, b) => b - a);
+---
+
+<Base
+  title="Writing"
+  description="Notes on backends, distributed systems, and the tools I build."
+>
+  <div class="mx-auto max-w-[1180px] px-5 pt-16 pb-24 sm:px-8 sm:pt-24 sm:pb-32">
+    <header class="mb-16 sm:mb-20">
+      <h1
+        data-reveal
+        class="text-4xl font-medium leading-[1.08] tracking-[-0.03em] text-ink sm:text-5xl"
+      >
+        Writing
+      </h1>
+      <p
+        data-reveal
+        style="--reveal-delay:110ms"
+        class="mt-5 max-w-[48ch] text-[17px] leading-relaxed text-muted"
+      >
+        Notes on backends, distributed systems, and the tools I build along the way.
+      </p>
+    </header>
+
+    {
+      posts.length === 0 ? (
+        <div data-reveal class="border-t border-line-soft py-16">
+          <p class="max-w-[52ch] text-[15px] leading-relaxed text-muted">
+            Nothing published yet. Drafts live in <code
+              class="rounded-[3px] border border-line bg-raised px-1.5 py-0.5 font-mono text-[13px] text-ink"
+              >src/content/blog/</code
+            > and appear here once <code
+              class="rounded-[3px] border border-line bg-raised px-1.5 py-0.5 font-mono text-[13px] text-ink"
+              >draft</code
+            > is set to false.
+          </p>
+        </div>
+      ) : (
+        years.map((year, groupIndex) => (
+          <section class="mb-14 last:mb-0">
+            <h2
+              data-reveal
+              class="mb-5 font-mono text-xs text-accent-dim tabular-nums"
+            >
+              {year}
+            </h2>
+            <ul class="grid">
+              {byYear.get(year)!.map((post, i) => (
+                <PostRow post={post} index={groupIndex === 0 ? i : 0} />
+              ))}
+            </ul>
+          </section>
+        ))
+      )
+    }
+  </div>
+</Base>

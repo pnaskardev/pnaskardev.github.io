@@ -1,0 +1,127 @@
+---
+import '~/styles/global.css';
+import Nav from '~/components/Nav.astro';
+import Footer from '~/components/Footer.astro';
+import { site } from '~/site.config';
+
+interface Props {
+  title?: string;
+  description?: string;
+  /** Absolute or root-relative path to an OG image. */
+  ogImage?: string;
+  /** Set on article pages so search engines get the right type. */
+  type?: 'website' | 'article';
+}
+
+const {
+  title,
+  description = site.description,
+  ogImage = '/og.png',
+  type = 'website',
+} = Astro.props;
+
+const pageTitle = title ? `${title} · ${site.name}` : site.name;
+const canonical = new URL(Astro.url.pathname, Astro.site).href;
+const ogUrl = new URL(ogImage, Astro.site).href;
+---
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{pageTitle}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonical} />
+
+    <!-- The theme is locked dark, so tell the browser to paint its chrome to match. -->
+    <meta name="color-scheme" content="dark" />
+    <meta name="theme-color" content="#0c0d0f" />
+
+    <meta property="og:type" content={type} />
+    <meta property="og:title" content={pageTitle} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:image" content={ogUrl} />
+    <meta name="twitter:card" content="summary_large_image" />
+
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="alternate" type="application/rss+xml" title={site.name} href="/rss.xml" />
+    <link rel="sitemap" href="/sitemap-index.xml" />
+
+    <!-- Flip the no-js class before paint so revealed content never flashes. -->
+    <script is:inline>
+      document.documentElement.classList.remove('no-js');
+    </script>
+  </head>
+
+  <body class="min-h-[100dvh] flex flex-col">
+    <a
+      href="#main"
+      class="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-[60] focus:bg-accent focus:text-bg focus:px-4 focus:py-2 focus:rounded-[4px] focus:font-medium"
+    >
+      Skip to content
+    </a>
+
+    <Nav />
+
+    <main id="main" class="flex-1">
+      <slot />
+    </main>
+
+    <Footer />
+
+    <!--
+      Scroll reveal. IntersectionObserver rather than a scroll listener:
+      no work on non-intersecting frames, and it unobserves once revealed.
+      Justification for the motion: it sequences the page so the eye lands on
+      one section at a time instead of the whole document arriving at once.
+    -->
+    <script is:inline>
+      (() => {
+        const targets = Array.from(document.querySelectorAll('[data-reveal]'));
+        if (!targets.length) return;
+
+        const reveal = (el) => el.setAttribute('data-reveal', 'in');
+
+        const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        if (reduced || !('IntersectionObserver' in window)) {
+          targets.forEach(reveal);
+          return;
+        }
+
+        const io = new IntersectionObserver(
+          (entries) => {
+            for (const entry of entries) {
+              if (!entry.isIntersecting) continue;
+              reveal(entry.target);
+              io.unobserve(entry.target);
+            }
+          },
+          // threshold 0 so a single visible pixel counts. The small bottom
+          // inset delays the reveal just past the fold without opening a band
+          // where an element can sit unrevealed while on screen.
+          { rootMargin: '0px 0px -5% 0px', threshold: 0 },
+        );
+
+        targets.forEach((el) => io.observe(el));
+
+        // Deep links (/#now from the nav on a blog page) jump straight into the
+        // document. Anything at or above the fold is shown at once, so an
+        // anchor can never land the reader on an empty screen.
+        const revealInView = () => {
+          for (const el of targets) {
+            if (el.getAttribute('data-reveal') === 'in') continue;
+            if (el.getBoundingClientRect().top < window.innerHeight) {
+              reveal(el);
+              io.unobserve(el);
+            }
+          }
+        };
+
+        if (window.location.hash) revealInView();
+        window.addEventListener('hashchange', revealInView);
+      })();
+    </script>
+  </body>
+</html>

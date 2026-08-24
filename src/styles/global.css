@@ -1,0 +1,238 @@
+@import "tailwindcss";
+
+@import "@fontsource-variable/geist/index.css";
+@import "@fontsource-variable/geist-mono/index.css";
+
+/* ---------------------------------------------------------------------------
+   Design tokens. Single locked dark theme.
+   Accent: terminal amber. Chosen over the cyan/green/violet defaults because
+   amber reads as CRT phosphor without tipping into hacker-costume.
+   Radius: one 4px step everywhere. No pills, no mixed corner systems.
+--------------------------------------------------------------------------- */
+@theme {
+  --color-bg: #0c0d0f;
+  --color-surface: #131518;
+  --color-raised: #191c20;
+  --color-line: #24282c;
+  --color-line-soft: #191d21;
+
+  --color-ink: #e9eaec;
+  --color-muted: #9aa0a6;
+  --color-faint: #7a7f85;
+
+  --color-accent: #e9a23b;
+  --color-accent-dim: #b57d2c;
+
+  --font-sans: "Geist Variable", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-mono: "Geist Mono Variable", ui-monospace, "SF Mono", Menlo, monospace;
+
+  --radius-card: 4px;
+
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+    /* Anchored sections clear the sticky nav instead of hiding under it. */
+    scroll-padding-top: 6rem;
+    -webkit-text-size-adjust: 100%;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    html { scroll-behavior: auto; }
+  }
+
+  body {
+    background-color: var(--color-bg);
+    color: var(--color-ink);
+    font-family: var(--font-sans);
+    font-synthesis-weight: none;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  ::selection {
+    background-color: var(--color-accent);
+    color: var(--color-bg);
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 3px;
+    border-radius: 2px;
+  }
+
+  /* Never let a wide code block or table push the page sideways. */
+  body { overflow-x: hidden; }
+}
+
+/* ---------------------------------------------------------------------------
+   Scroll reveal. MOTION_INTENSITY 4: entry cascade only, no parallax,
+   no scroll hijack. Driven by IntersectionObserver in Base.astro, which
+   flips [data-reveal] to [data-reveal="in"].
+--------------------------------------------------------------------------- */
+@media (prefers-reduced-motion: no-preference) {
+  [data-reveal] {
+    opacity: 0;
+    transform: translateY(14px);
+    transition:
+      opacity 0.7s var(--ease-out-expo),
+      transform 0.7s var(--ease-out-expo);
+    transition-delay: var(--reveal-delay, 0ms);
+  }
+  [data-reveal="in"] {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* Reduced motion: content is simply present. No fade, no offset. */
+@media (prefers-reduced-motion: reduce) {
+  [data-reveal] { opacity: 1; transform: none; }
+}
+
+/* If JS never runs, content must still be visible. */
+.no-js [data-reveal] { opacity: 1; transform: none; }
+
+/* ---------------------------------------------------------------------------
+   Long-form article styling for blog posts.
+--------------------------------------------------------------------------- */
+.prose {
+  --measure: 68ch;
+  color: var(--color-ink);
+  font-size: 1.0625rem;
+  line-height: 1.75;
+}
+.prose > * { max-width: var(--measure); }
+.prose > pre,
+.prose > .table-scroll,
+.prose > figure { max-width: min(100%, 78ch); }
+
+.prose p,
+.prose ul,
+.prose ol,
+.prose blockquote {
+  margin-block: 1.35em;
+  color: #cdd1d5;
+}
+
+.prose h2,
+.prose h3,
+.prose h4 {
+  color: var(--color-ink);
+  letter-spacing: -0.02em;
+  line-height: 1.25;
+  scroll-margin-top: 6rem;
+}
+.prose h2 { font-size: 1.5rem; font-weight: 600; margin-block: 2.75em 0.85em; }
+.prose h3 { font-size: 1.185rem; font-weight: 600; margin-block: 2.15em 0.7em; }
+.prose h4 { font-size: 1rem; font-weight: 600; margin-block: 1.9em 0.6em; }
+.prose > :first-child { margin-top: 0; }
+
+.prose a {
+  color: var(--color-ink);
+  text-decoration: underline;
+  text-decoration-color: var(--color-accent-dim);
+  text-underline-offset: 3px;
+  text-decoration-thickness: 1px;
+  transition: text-decoration-color 0.2s, color 0.2s;
+}
+.prose a:hover {
+  color: var(--color-accent);
+  text-decoration-color: var(--color-accent);
+}
+
+.prose strong { color: var(--color-ink); font-weight: 600; }
+
+.prose ul, .prose ol { padding-left: 1.35em; }
+.prose ul { list-style: none; }
+.prose ul > li { position: relative; }
+.prose ul > li::before {
+  content: "";
+  position: absolute;
+  left: -1.05em;
+  top: 0.72em;
+  width: 5px;
+  height: 1px;
+  background: var(--color-faint);
+}
+.prose ol { list-style: decimal; }
+.prose ol > li::marker { color: var(--color-faint); font-variant-numeric: tabular-nums; }
+.prose li { margin-block: 0.4em; }
+
+.prose blockquote {
+  border-left: 2px solid var(--color-accent-dim);
+  padding-left: 1.15em;
+  font-style: normal;
+  color: var(--color-muted);
+}
+.prose blockquote p:first-child { margin-top: 0; }
+.prose blockquote p:last-child { margin-bottom: 0; }
+
+.prose code {
+  font-family: var(--font-mono);
+  font-size: 0.875em;
+  background: var(--color-raised);
+  border: 1px solid var(--color-line);
+  border-radius: 3px;
+  padding: 0.12em 0.36em;
+}
+
+.prose pre {
+  background: #0f1113 !important;
+  border: 1px solid var(--color-line);
+  border-radius: var(--radius-card);
+  padding: 1.1rem 1.25rem;
+  overflow-x: auto;
+  font-size: 0.875rem;
+  line-height: 1.65;
+  margin-block: 1.75em;
+}
+.prose pre code {
+  background: none;
+  border: 0;
+  padding: 0;
+  font-size: inherit;
+}
+
+.prose img {
+  max-width: 100%;
+  height: auto;
+  border-radius: var(--radius-card);
+  border: 1px solid var(--color-line);
+}
+
+.prose figcaption {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  color: var(--color-faint);
+  margin-top: 0.7em;
+}
+
+.prose hr {
+  border: 0;
+  border-top: 1px solid var(--color-line);
+  margin-block: 3em;
+}
+
+/* Tables scroll inside their own container so the page never does. */
+.prose .table-scroll { overflow-x: auto; margin-block: 1.75em; }
+.prose table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9375rem;
+}
+.prose th, .prose td {
+  text-align: left;
+  padding: 0.6rem 0.9rem 0.6rem 0;
+  border-bottom: 1px solid var(--color-line-soft);
+}
+.prose th {
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-faint);
+  font-weight: 500;
+}

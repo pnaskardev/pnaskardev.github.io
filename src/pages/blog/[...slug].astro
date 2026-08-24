@@ -1,0 +1,108 @@
+---
+import type { GetStaticPaths } from 'astro';
+import type { CollectionEntry } from 'astro:content';
+import { Icon } from 'astro-icon/components';
+import { getCollection, render } from 'astro:content';
+import Base from '~/layouts/Base.astro';
+
+export const getStaticPaths: GetStaticPaths = async () => {
+  const posts = await getCollection('blog');
+  return posts.map((post) => ({
+    params: { slug: post.id },
+    props: { post },
+  }));
+};
+
+interface Props {
+  post: CollectionEntry<'blog'>;
+}
+
+const { post } = Astro.props;
+const { Content, headings, remarkPluginFrontmatter } = await render(post);
+
+const fmt = (d: Date) =>
+  d.toLocaleDateString('en-GB', { day: '2-digit', month: 'long', year: 'numeric' });
+
+const readingTime: string | undefined = remarkPluginFrontmatter?.readingTime;
+
+/** Only h2s, and only when there are enough of them to be worth the space. */
+const toc = headings.filter((h) => h.depth === 2);
+---
+
+<Base title={post.data.title} description={post.data.description} type="article">
+  <article class="mx-auto max-w-[1180px] px-5 pt-12 pb-24 sm:px-8 sm:pt-16 sm:pb-32">
+    <a
+      href="/blog"
+      class="group inline-flex items-center gap-2 font-mono text-xs text-faint transition-colors hover:text-accent"
+    >
+      <Icon
+        name="ph:arrow-left"
+        width={13}
+        height={13}
+        class="transition-transform duration-300 group-hover:-translate-x-1"
+      />
+      Writing
+    </a>
+
+    <header class="mt-10 mb-12 max-w-[40ch] sm:mb-16">
+      <h1
+        class="text-3xl font-medium leading-[1.14] tracking-[-0.03em] text-ink sm:text-[2.6rem]"
+      >
+        {post.data.title}
+      </h1>
+
+      <div class="mt-6 flex flex-wrap items-center gap-x-4 gap-y-2 font-mono text-xs text-faint">
+        <time datetime={post.data.pubDate.toISOString()} class="tabular-nums">
+          {fmt(post.data.pubDate)}
+        </time>
+        {readingTime && <span>{readingTime}</span>}
+      </div>
+
+      {
+        post.data.updatedDate && (
+          <p class="mt-2 font-mono text-xs text-faint">
+            Updated {fmt(post.data.updatedDate)}
+          </p>
+        )
+      }
+    </header>
+
+    <div class="grid gap-x-16 lg:grid-cols-[minmax(0,1fr)_13rem]">
+      <div class="prose min-w-0">
+        <Content />
+      </div>
+
+      {
+        toc.length >= 3 && (
+          <aside class="hidden lg:block">
+            <nav aria-label="On this page" class="sticky top-28">
+              <p class="font-mono text-[11px] text-accent-dim">On this page</p>
+              <ul class="mt-4 grid gap-2.5 border-l border-line-soft pl-4">
+                {toc.map((h) => (
+                  <li>
+                    <a
+                      href={`#${h.slug}`}
+                      class="block text-[13px] leading-snug text-faint transition-colors hover:text-ink"
+                    >
+                      {h.text}
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            </nav>
+          </aside>
+        )
+      }
+    </div>
+
+    {
+      post.data.tags.length > 0 && (
+        <footer class="mt-20 border-t border-line-soft pt-6">
+          <p class="font-mono text-[11px] text-faint">
+            {post.data.tags.join('  /  ')}
+          </p>
+        </footer>
+      )
+    }
+  </article>
+</Base>
