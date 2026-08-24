@@ -11,6 +11,12 @@ const withImages = projects.filter((p) => p.image);
 ---
 
 <!--
+  CURRENTLY UNUSED. The home page renders WorkGrid instead, because writing now
+  leads the page and work is a compact supporting list. Kept intact as the
+  restore path: add real 1200x800 images to public/work/, uncomment the image
+  entries in src/site.config.ts, and swap WorkGrid back to WorkList in
+  src/pages/index.astro.
+
   Asymmetric split: rows on the left, one sticky preview on the right.
   The preview swaps on hover AND focus, so keyboard users get the same
   information as mouse users. Below lg the preview column is dropped and each

@@ -18,6 +18,7 @@ npm run check    # type-check .astro and .ts files
 | --- | --- |
 | Name, headline, intro, email, portrait | `src/site.config.ts` |
 | Projects in "Selected work" | `projects` in `src/site.config.ts` |
+| How many posts the home page lists | `HOME_POST_COUNT` in `src/site.config.ts` |
 | The "Now" section | `now` in `src/site.config.ts` |
 | Social links | `socials` in `src/site.config.ts` |
 | Blog posts | `src/content/blog/*.md` |
@@ -25,6 +26,13 @@ npm run check    # type-check .astro and .ts files
 
 Nothing on the home page is hardcoded in a component. Change
 `src/site.config.ts` and the page follows.
+
+## Home page order
+
+The site is blog-first. The home page runs hero, then **Writing**, then a
+compact **Selected work** list, then Now and Contact. Writing sits directly
+under the hero because the posts are the point; work is a short supporting list
+rather than a gallery.
 
 ## Writing a post
 
@@ -61,8 +69,16 @@ real assets exist. Replace them:
 - **Portrait** - add `public/portrait.jpg` (4:5, around 1200x1500) and set
   `site.portrait.src` to `/portrait.jpg`. Set `site.portrait` to `null` to drop
   the hero image entirely.
-- **Project previews** - add files to `public/work/` (3:2, around 1200x800) and
-  point each project's `image.src` at `/work/name.jpg`.
+
+**Project previews are currently off.** The work list is text only, so no
+project images ship. To turn previews back on:
+
+1. Add files to `public/work/` (3:2, around 1200x800).
+2. Uncomment the `image` entries in `projects` in `src/site.config.ts`.
+3. In `src/pages/index.astro`, swap `WorkGrid` back to `WorkList`.
+
+`src/components/WorkList.astro` is the original hover-preview layout, kept intact
+for exactly this.
 
 The social share card lives at `public/og.png`. Its source is
 `scripts/og.html`; the regeneration command is in a comment at the top of that

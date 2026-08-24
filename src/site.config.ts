@@ -59,12 +59,20 @@ export type Project = {
   href: string;
   /**
    * Preview shown on hover at >=1024px. Recommended 1200x800 (3:2).
-   * Drop real files in public/work/ and reference them as '/work/name.jpg'.
+   * Currently unused: the home page renders WorkGrid, which is text only.
+   * To bring previews back, drop real files in public/work/, uncomment the
+   * image entries below, and swap WorkGrid for WorkList in src/pages/index.astro.
    */
   image?: { src: string; alt: string };
 };
 
-/* TODO(you): replace all four with real projects. Order is the display order. */
+/*
+ * TODO(you): replace all four with real projects. Order is the display order.
+ *
+ * The commented image entries are the restore path for hover previews. Drop
+ * 1200x800 files in public/work/, uncomment, and swap WorkGrid for WorkList
+ * in src/pages/index.astro.
+ */
 export const projects: Project[] = [
   {
     title: 'Project one',
@@ -72,7 +80,7 @@ export const projects: Project[] = [
     year: '2026',
     stack: ['Go', 'Postgres', 'NATS'],
     href: 'https://github.com/pnaskardev',
-    image: { src: 'https://picsum.photos/seed/pnaskar-one/1200/800', alt: 'Project one interface' },
+    // image: { src: '/work/project-one.jpg', alt: 'Project one interface' },
   },
   {
     title: 'Project two',
@@ -80,7 +88,7 @@ export const projects: Project[] = [
     year: '2025',
     stack: ['TypeScript', 'Redis', 'Fly.io'],
     href: 'https://github.com/pnaskardev',
-    image: { src: 'https://picsum.photos/seed/pnaskar-two/1200/800', alt: 'Project two interface' },
+    // image: { src: '/work/project-two.jpg', alt: 'Project two interface' },
   },
   {
     title: 'Project three',
@@ -88,7 +96,7 @@ export const projects: Project[] = [
     year: '2025',
     stack: ['Rust', 'WASM'],
     href: 'https://github.com/pnaskardev',
-    image: { src: 'https://picsum.photos/seed/pnaskar-three/1200/800', alt: 'Project three interface' },
+    // image: { src: '/work/project-three.jpg', alt: 'Project three interface' },
   },
   {
     title: 'Project four',
@@ -96,7 +104,7 @@ export const projects: Project[] = [
     year: '2024',
     stack: ['Python', 'DuckDB'],
     href: 'https://github.com/pnaskardev',
-    image: { src: 'https://picsum.photos/seed/pnaskar-four/1200/800', alt: 'Project four interface' },
+    // image: { src: '/work/project-four.jpg', alt: 'Project four interface' },
   },
 ];
 
@@ -119,5 +127,9 @@ export const now: { heading: string; items: string[] }[] = [
   },
 ];
 
-/** How many recent posts to surface on the home page. */
-export const HOME_POST_COUNT = 3;
+/**
+ * How many recent posts to surface on the home page. The home page leads with
+ * writing, so this is a list rather than a teaser. It is capped rather than
+ * unbounded so a long archive cannot push Now and Contact off the page.
+ */
+export const HOME_POST_COUNT = 10;

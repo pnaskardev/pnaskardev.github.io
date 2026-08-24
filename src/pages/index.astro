@@ -3,7 +3,7 @@ import { Icon } from 'astro-icon/components';
 import { getCollection } from 'astro:content';
 import Base from '~/layouts/Base.astro';
 import Section from '~/components/Section.astro';
-import WorkList from '~/components/WorkList.astro';
+import WorkGrid from '~/components/WorkGrid.astro';
 import PostRow from '~/components/PostRow.astro';
 import { site, socials, projects, now, HOME_POST_COUNT } from '~/site.config';
 
@@ -76,17 +76,14 @@ const posts = (await getCollection('blog', ({ data }) => !data.draft))
     </div>
   </section>
 
-  <Section id="work" heading="Selected work">
-    <WorkList projects={projects} />
-  </Section>
-
+  {/* Writing leads the page. The post list is the front door, not a teaser. */}
   <Section id="writing" heading="Writing">
     {
       posts.length > 0 ? (
         <>
           <ul class="grid">
             {posts.map((post, i) => (
-              <PostRow post={post} index={i} />
+              <PostRow post={post} index={Math.min(i, 6)} />
             ))}
           </ul>
 
@@ -110,6 +107,11 @@ const posts = (await getCollection('blog', ({ data }) => !data.draft))
         </p>
       )
     }
+  </Section>
+
+  {/* Work supports the writing rather than leading. Compact, text only. */}
+  <Section id="work" heading="Selected work">
+    <WorkGrid projects={projects} />
   </Section>
 
   {/* Grouped columns. Deliberately not a flat skills list. */}
