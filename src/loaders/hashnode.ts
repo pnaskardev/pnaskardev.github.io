@@ -72,7 +72,7 @@ export function hashnodeLoader({ host }: HashnodeLoaderOptions): Loader {
   return {
     name: 'hashnode',
 
-    async load({ store, logger, parseData, renderMarkdown, generateDigest, meta }) {
+    async load({ store, logger, parseData, renderMarkdown, generateDigest }) {
       logger.info(`Fetching posts from ${feedUrl}`);
 
       const res = await fetch(feedUrl, {
@@ -96,12 +96,6 @@ export function hashnodeLoader({ host }: HashnodeLoaderOptions): Loader {
       // An empty or error response must not silently wipe the blog.
       if (!xml.includes('<item')) {
         throw new Error(`No posts in the feed at ${feedUrl} -- check the publication host.`);
-      }
-
-      const digest = generateDigest(xml);
-      if (meta.get('digest') === digest) {
-        logger.info('Feed unchanged, keeping the existing entries');
-        return;
       }
 
       const parser = new XMLParser({
@@ -162,7 +156,6 @@ export function hashnodeLoader({ host }: HashnodeLoaderOptions): Loader {
         store.set({ id, data, rendered, digest: generateDigest(markdown) });
       }
 
-      meta.set('digest', digest);
       logger.info(`Loaded ${store.keys().length} post(s)`);
     },
   };

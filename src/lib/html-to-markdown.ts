@@ -118,10 +118,31 @@ function normaliseHeadings(markdown: string): string {
     .join('');
 }
 
+/**
+ * Repair Obsidian embed syntax that was pasted into a post and never rendered.
+ *
+ * `![[IMG-123.png]](https://cdn... align="center")` is not markdown Hashnode
+ * understands, so it publishes the whole thing as literal text with the URL
+ * auto-linked -- no <img> ever exists. Turndown then faithfully carries the
+ * garbage through. Rewriting to a real <img> before conversion is the only
+ * point where the URL is still cleanly extractable.
+ *
+ * ponytail: shim for broken source. The durable fix is correcting the markdown
+ * in the Hashnode editor; delete this once no post needs it.
+ */
+const OBSIDIAN_EMBED =
+  /!\[\[[^\]]*\]\]\(\s*(?:<a[^>]*href="([^"]+)"[^>]*>.*?<\/a>|(https?:\/\/[^\s<)]+))[^)]*\)/gis;
+
+const repairObsidianEmbeds = (html: string): string =>
+  html.replace(OBSIDIAN_EMBED, (_m, linked: string, bare: string) => {
+    const src = linked || bare;
+    return src ? `<img src="${src}" alt="" />` : _m;
+  });
+
 /** Feed HTML in, clean markdown out. */
 export function htmlToMarkdown(html: string): string {
   const markdown = makeTurndown()
-    .turndown(html)
+    .turndown(repairObsidianEmbeds(html))
     // Medium splits one logical code block across several consecutive <pre>
     // elements, which would otherwise become a run of tiny fences. Merge a
     // closing fence that is immediately followed by an opening one.

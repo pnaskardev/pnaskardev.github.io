@@ -30,7 +30,7 @@ const blog = defineCollection({
      * <link rel="canonical"> pointing here instead of at this site, and the
      * post renders an "originally published on" line.
      */
-    canonicalUrl: z.string().url().optional(),
+    canonicalUrl: z.url().optional(),
   }),
 });
 

@@ -5,7 +5,7 @@ import Base from '~/layouts/Base.astro';
 import Section from '~/components/Section.astro';
 import WorkGrid from '~/components/WorkGrid.astro';
 import PostRow from '~/components/PostRow.astro';
-import { site, socials, projects, now, HOME_POST_COUNT } from '~/site.config';
+import { site, socials, projects, experience, focus, HOME_POST_COUNT } from '~/site.config';
 
 const posts = (await getCollection('blog', ({ data }) => !data.draft))
   .sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf())
@@ -76,6 +76,23 @@ const posts = (await getCollection('blog', ({ data }) => !data.draft))
     </div>
   </section>
 
+  {/* Reads as an extension of the bio, so it sits directly under the hero.
+      Two columns is safe here: the work grid is three sections away. */}
+  <Section id="focus" heading="Focus">
+    <div class="grid gap-x-14 gap-y-10 sm:grid-cols-2">
+      {
+        focus.map((area, i) => (
+          <div data-reveal style={`--reveal-delay:${i * 70}ms`}>
+            <h3 class="font-mono text-xs text-accent-dim">{area.heading}</h3>
+            <p class="mt-3 max-w-[46ch] text-[15px] leading-relaxed text-muted">
+              {area.body}
+            </p>
+          </div>
+        ))
+      }
+    </div>
+  </Section>
+
   {/* Writing leads the page. The post list is the front door, not a teaser. */}
   <Section id="writing" heading="Writing">
     {
@@ -109,27 +126,33 @@ const posts = (await getCollection('blog', ({ data }) => !data.draft))
     }
   </Section>
 
-  {/* Work supports the writing rather than leading. Compact, text only. */}
-  <Section id="work" heading="Selected work">
-    <WorkGrid projects={projects} />
-  </Section>
-
-  {/* Grouped columns. Deliberately not a flat skills list. */}
-  <Section id="now" heading="Now">
-    <div class="grid gap-10 sm:grid-cols-3 sm:gap-8">
+  {/* Stacked blocks, no gutter and no rules: distinct from both the bordered
+      post rows above and the two-column work grid below. */}
+  <Section id="experience" heading="Experience">
+    <div class="grid gap-12">
       {
-        now.map((group, i) => (
+        experience.map((job, i) => (
           <div data-reveal style={`--reveal-delay:${i * 80}ms`}>
-            <h3 class="font-mono text-xs text-accent-dim">{group.heading}</h3>
-            <ul class="mt-4 grid gap-2.5">
-              {group.items.map((item) => (
-                <li class="text-[15px] leading-relaxed text-muted">{item}</li>
-              ))}
-            </ul>
+            <h3 class="text-lg font-medium tracking-tight text-ink">{job.company}</h3>
+            <p class="mt-1.5 font-mono text-xs text-faint">
+              {job.role}
+              <span class="text-accent-dim"> / </span>
+              {job.period}
+              <span class="text-accent-dim"> / </span>
+              {job.location}
+            </p>
+            <p class="mt-4 max-w-[62ch] text-[15px] leading-relaxed text-muted">
+              {job.summary}
+            </p>
           </div>
         ))
       }
     </div>
+  </Section>
+
+  {/* Work supports the writing rather than leading. Compact, text only. */}
+  <Section id="work" heading="Selected work">
+    <WorkGrid projects={projects} />
   </Section>
 
   {/* Full-width type block. The only contact CTA on the page. */}
