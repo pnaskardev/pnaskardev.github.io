@@ -21,11 +21,11 @@ export const site = {
   hashnodeHost: 'priyanshucodes.hashnode.dev',
 
   /** One or two lines. This is the hero headline, so keep it short. */
-  headline: 'I build backends that stay boring under load.',
+  headline: 'I build backends where partial failure is the normal case.',
 
-  /** Max 20 words. Sits under the headline. */
+  /** Two or three sentences. Sits under the headline. */
   intro:
-    'Currently working on distributed systems and developer tooling. I write about what breaks and why.',
+    'Software engineer at Kazam EV Tech in Bengaluru, working on Unified Bharat Charging: cross-network EV charging interoperability at national scale, and the payment and reconciliation layer underneath it. I ship things that keep working once the traffic and the failure modes show up. Then I write down what broke.',
 
   /**
    * TODO(you): replace with your own image. Drop a 4:5 portrait or workspace
@@ -114,22 +114,43 @@ export const projects: Project[] = [
   },
 ];
 
-/**
- * The "Now" section. Three groups, a few items each.
- * Grouped chunks on purpose: a flat 15-row skill list is the lazy layout.
- */
-export const now: { heading: string; items: string[] }[] = [
+/** Most recent first. Interns and earlier roles can be appended later. */
+export const experience = [
   {
-    heading: 'Building',
-    items: ['Event-driven services in Go', 'Internal developer tooling'],
+    company: 'Kazam EV Tech',
+    role: 'Software Development Engineer',
+    period: '2024 — now',
+    location: 'Bengaluru',
+    summary:
+      'Build and run a Go interoperability platform for Unified Bharat Charging, unifying 3,420+ EV chargers across HPCL and BPCL and processing 20,500 daily transactions. Built the webhook-driven, idempotent order and payment lifecycle, and the multi-tenant OEM-Tool now serving 1,200+ vendors across 20+ tenants.',
   },
   {
-    heading: 'Learning',
-    items: ['Distributed consensus', 'Query planner internals'],
+    company: 'Alemeno',
+    role: 'Software Development Engineer',
+    period: '2024',
+    location: 'Remote',
+    summary:
+      'Backend for an edtech platform serving 400,000+ students on Django REST, with Celery for async processing and rolling multi-node deploys. Cut API response times 65% on high-traffic endpoints with a Redis caching layer, without touching the schema.',
+  },
+];
+
+/** What I actually work on. Four is the ceiling; more reads as a skills dump. */
+export const focus = [
+  {
+    heading: 'Distributed systems',
+    body: 'Idempotency keys, webhook-driven lifecycles, state-machine reconciliation, and recovery from partial failure. The interesting part is always what happens on the retry.',
   },
   {
-    heading: 'Reading',
-    items: ['Designing Data-Intensive Applications', 'Papers on stream processing'],
+    heading: 'Payments and ledgers',
+    body: 'Order and payment lifecycles at 20,000+ daily transactions, automated ledger reconciliation, and refund and cancellation flows that remove manual settlement work.',
+  },
+  {
+    heading: 'Multi-tenant platforms',
+    body: 'Custom multi-tenancy and RBAC with isolated data boundaries, serving 1,200+ vendors and technicians across 20+ OEM tenants.',
+  },
+  {
+    heading: 'Backend and APIs',
+    body: 'Go and Django REST, gRPC, WebSockets, Celery for async work, Redis for caching. Postgres and MongoDB underneath, on AWS.',
   },
 ];
 
