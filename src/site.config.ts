@@ -31,14 +31,15 @@ export const site = {
     'Software engineer at Kazam EV Tech in Bengaluru, working on Unified Bharat Charging: cross-network EV charging interoperability at national scale, and the payment and reconciliation layer underneath it. I ship things that keep working once the traffic and the failure modes show up. Then I write down what broke.',
 
   /**
-   * TODO(you): replace with your own image. Drop a 4:5 portrait or workspace
-   * shot at public/portrait.jpg and change src to '/portrait.jpg'.
-   * Set the whole field to null to render the hero without an image.
+   * TODO(you): drop a 4:5 portrait or workspace shot at public/portrait.jpg
+   * and set this to { src: '/portrait.jpg', alt: 'Priyanshu Naskar' }.
+   *
+   * null until then: this was a picsum.photos placeholder, and picsum started
+   * returning 503/522 on 2026-08-31, so it rendered as a broken-image box.
+   * A remote placeholder is a third-party dependency on the hero -- the real
+   * file belongs in public/ where nothing can take it down.
    */
-  portrait: {
-    src: 'https://picsum.photos/seed/pnaskar-portrait/1200/1500',
-    alt: 'Priyanshu Naskar',
-  } as { src: string; alt: string } | null,
+  portrait: null as { src: string; alt: string } | null,
 };
 
 export type SocialLink = {

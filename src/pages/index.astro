@@ -20,7 +20,14 @@ const posts = (await getCollection('blog', ({ data }) => !data.draft))
 
   {/* Hero: asymmetric split. Type carries the left, portrait anchors the right. */}
   <section class="mx-auto max-w-[1180px] px-5 pt-16 pb-20 sm:px-8 sm:pt-24 sm:pb-28">
-    <div class="grid items-center gap-12 lg:grid-cols-[1.35fr_1fr] lg:gap-20">
+    {/* The split only exists to make room for the portrait. Without one the
+        second column would sit empty and read as a layout bug. */}
+    <div
+      class:list={[
+        'grid items-center gap-12',
+        site.portrait && 'lg:grid-cols-[1.35fr_1fr] lg:gap-20',
+      ]}
+    >
       <div>
         <h1
           data-reveal
