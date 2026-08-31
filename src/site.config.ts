@@ -14,6 +14,9 @@ export const site = {
 
   email: 'pnaskardev@gmail.com',
 
+  /** Served straight from public/. Replace the file to update it. */
+  resume: '/resume.pdf',
+
   /**
    * Hashnode publication that supplies the blog. Posts are fetched from its
    * RSS feed at build time; nothing is copied into this repo.
@@ -152,6 +155,24 @@ export const focus = [
     heading: 'Backend and APIs',
     body: 'Go and Django REST, gRPC, WebSockets, Celery for async work, Redis for caching. Postgres and MongoDB underneath, on AWS.',
   },
+];
+
+/**
+ * Grouped so the list reads as a stack, not a keyword dump. Groups mirror the
+ * resume; keep them in the same order so the two never disagree.
+ */
+export const skills = [
+  { group: 'Languages', items: ['Go', 'Python', 'TypeScript', 'JavaScript', 'SQL'] },
+  {
+    group: 'Backend',
+    items: ['Django', 'Django REST', 'Celery', 'GoFiber', 'Express'],
+  },
+  { group: 'Data', items: ['PostgreSQL', 'MongoDB', 'Redis', 'Kafka', 'Elasticsearch'] },
+  {
+    group: 'Infrastructure',
+    items: ['Docker', 'AWS', 'GitHub Actions', 'Nginx', 'Prometheus', 'Grafana'],
+  },
+  { group: 'APIs', items: ['REST', 'gRPC', 'WebSockets', 'Beckn', 'Swagger'] },
 ];
 
 /**

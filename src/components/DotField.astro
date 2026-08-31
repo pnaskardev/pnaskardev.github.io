@@ -1,0 +1,214 @@
+---
+interface Props {
+  /** Height utilities live here so the same component works in any slot. */
+  class?: string;
+}
+
+const { class: className = 'h-24 sm:h-32' } = Astro.props;
+---
+
+{/*
+  Interactive dot field. A grid of 9px-spaced dots that repel from the pointer,
+  ripple outward on click, and spring back. Decorative only -- aria-hidden, and
+  it renders as a still field under prefers-reduced-motion.
+
+  Two sprites rather than a per-dot fillStyle: the grey dot is drawn every
+  frame, the amber one composited on top at alpha = glow. Setting fillStyle per
+  dot would build ~1600 colour strings per frame.
+*/}
+<div class:list={['w-full', className]} aria-hidden="true">
+  <canvas data-dot-field class="block h-full w-full"></canvas>
+</div>
+
+<script>
+  const SPACING = 9;
+  const DOT = 2;
+  const CURSOR_RADIUS = 120;
+  const CURSOR_FORCE = 52;
+  const RIPPLE_SPEED = 220;
+  const RIPPLE_LIFE = 1.7;
+  const RIPPLE_BAND = 34;
+  const RIPPLE_FORCE = 24;
+  const MAX_RIPPLES = 8;
+  const SPRING = 6.4;
+  const DAMPING = 0.85;
+  const BASE_ALPHA = 0.42;
+
+  /** 32px source downscaled to 2px is how the dot gets its soft edge. */
+  function sprite(color: string): HTMLCanvasElement {
+    const c = document.createElement('canvas');
+    c.width = 32;
+    c.height = 32;
+    const g = c.getContext('2d');
+    if (g) {
+      g.fillStyle = color;
+      g.beginPath();
+      g.arc(16, 16, 16, 0, Math.PI * 2);
+      g.fill();
+    }
+    return c;
+  }
+
+  type Dot = { ox: number; oy: number; x: number; y: number; vx: number; vy: number; glow: number };
+  type Ripple = { x: number; y: number; time: number };
+
+  function init(canvas: HTMLCanvasElement) {
+    const host = canvas.parentElement;
+    const ctx = canvas.getContext('2d');
+    if (!host || !ctx) return;
+
+    const still = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const ink = sprite('#7a7f85');
+    const accent = sprite('#e9a23b');
+
+    let dots: Dot[] = [];
+    let ripples: Ripple[] = [];
+    let w = 0;
+    let h = 0;
+    let raf = 0;
+    let last = 0;
+    let clock = 0;
+    let visible = true;
+    const pointer = { x: -9999, y: -9999, inside: false };
+
+    function layout() {
+      const rect = host!.getBoundingClientRect();
+      w = rect.width;
+      h = rect.height;
+      const dpr = Math.min(window.devicePixelRatio || 1, 2);
+      canvas.width = Math.max(1, Math.round(w * dpr));
+      canvas.height = Math.max(1, Math.round(h * dpr));
+      ctx!.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+      const cols = Math.floor(w / SPACING);
+      const rows = Math.floor(h / SPACING);
+      // Centre the grid so the leftover remainder splits evenly, not all on one edge.
+      const padX = (w - (cols - 1) * SPACING) / 2;
+      const padY = (h - (rows - 1) * SPACING) / 2;
+
+      dots = [];
+      for (let r = 0; r < rows; r += 1) {
+        for (let c = 0; c < cols; c += 1) {
+          const ox = padX + c * SPACING;
+          const oy = padY + r * SPACING;
+          dots.push({ ox, oy, x: ox, y: oy, vx: 0, vy: 0, glow: 0 });
+        }
+      }
+      if (still) draw();
+    }
+
+    function draw() {
+      ctx!.clearRect(0, 0, w, h);
+      for (const d of dots) {
+        const shimmer = still ? 0 : (Math.sin(clock * 0.8 + d.ox * 0.015 + d.oy * 0.02) + 1) * 0.04;
+        ctx!.globalAlpha = Math.min(1, BASE_ALPHA + shimmer + d.glow * 0.5);
+        ctx!.drawImage(ink, d.x - DOT / 2, d.y - DOT / 2, DOT, DOT);
+        if (d.glow > 0.01) {
+          ctx!.globalAlpha = Math.min(1, d.glow);
+          ctx!.drawImage(accent, d.x - DOT / 2, d.y - DOT / 2, DOT, DOT);
+        }
+      }
+      ctx!.globalAlpha = 1;
+    }
+
+    function frame(now: number) {
+      raf = requestAnimationFrame(frame);
+      if (!last) last = now;
+      // Clamped so a backgrounded tab does not resume with one enormous step.
+      const dt = Math.min(0.05, Math.max(0, (now - last) / 1000));
+      last = now;
+      if (!visible || document.hidden || dt === 0) return;
+
+      clock += dt;
+      const decay = Math.pow(DAMPING, 60 * dt);
+      const ease = 1 - decay;
+
+      for (let i = ripples.length - 1; i >= 0; i -= 1) {
+        ripples[i].time += dt;
+        if (ripples[i].time > RIPPLE_LIFE) ripples.splice(i, 1);
+      }
+
+      for (const d of dots) {
+        let fx = 0;
+        let fy = 0;
+        let glow = 0;
+
+        if (pointer.inside) {
+          const dx = d.ox - pointer.x;
+          const dy = d.oy - pointer.y;
+          const sq = dx * dx + dy * dy;
+          if (sq < CURSOR_RADIUS * CURSOR_RADIUS) {
+            const dist = Math.sqrt(sq) || 1;
+            const falloff = 1 - dist / CURSOR_RADIUS;
+            const push = falloff * falloff * CURSOR_FORCE;
+            fx += (dx / dist) * push;
+            fy += (dy / dist) * push;
+            glow = falloff;
+          }
+        }
+
+        for (const r of ripples) {
+          const dx = d.ox - r.x;
+          const dy = d.oy - r.y;
+          const dist = Math.sqrt(dx * dx + dy * dy) || 1;
+          const offset = Math.abs(dist - RIPPLE_SPEED * r.time);
+          if (offset < RIPPLE_BAND) {
+            const strength = (1 - offset / RIPPLE_BAND) * (1 - r.time / RIPPLE_LIFE);
+            glow = Math.max(glow, strength);
+            fx += (dx / dist) * strength * RIPPLE_FORCE;
+            fy += (dy / dist) * strength * RIPPLE_FORCE;
+          }
+        }
+
+        fx += (d.ox - d.x) * SPRING;
+        fy += (d.oy - d.y) * SPRING;
+        d.vx = (d.vx + fx * dt) * decay;
+        d.vy = (d.vy + fy * dt) * decay;
+        d.x += d.vx * dt * 60;
+        d.y += d.vy * dt * 60;
+        d.glow += (glow - d.glow) * ease;
+      }
+
+      draw();
+    }
+
+    function track(clientX: number, clientY: number) {
+      const rect = canvas.getBoundingClientRect();
+      pointer.x = clientX - rect.left;
+      pointer.y = clientY - rect.top;
+      pointer.inside = true;
+    }
+    const onMove = (e: PointerEvent) => track(e.clientX, e.clientY);
+    const onDown = (e: PointerEvent) => {
+      track(e.clientX, e.clientY);
+      ripples.push({ x: pointer.x, y: pointer.y, time: 0 });
+      if (ripples.length > MAX_RIPPLES) ripples.splice(0, ripples.length - MAX_RIPPLES);
+    };
+    const onLeave = () => {
+      pointer.inside = false;
+      pointer.x = -9999;
+      pointer.y = -9999;
+    };
+
+    layout();
+    new ResizeObserver(layout).observe(host);
+
+    if (still) return;
+
+    // Off-screen the field costs nothing; the band scrolls away almost at once.
+    new IntersectionObserver(
+      ([entry]) => {
+        visible = entry?.isIntersecting ?? true;
+      },
+      { threshold: 0 },
+    ).observe(host);
+
+    host.addEventListener('pointermove', onMove, { passive: true });
+    host.addEventListener('pointerdown', onDown);
+    host.addEventListener('pointerleave', onLeave);
+    host.addEventListener('pointercancel', onLeave);
+    raf = requestAnimationFrame(frame);
+  }
+
+  document.querySelectorAll<HTMLCanvasElement>('[data-dot-field]').forEach(init);
+</script>

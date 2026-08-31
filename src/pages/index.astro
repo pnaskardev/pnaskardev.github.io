@@ -5,7 +5,8 @@ import Base from '~/layouts/Base.astro';
 import Section from '~/components/Section.astro';
 import WorkGrid from '~/components/WorkGrid.astro';
 import PostRow from '~/components/PostRow.astro';
-import { site, socials, projects, experience, focus, HOME_POST_COUNT } from '~/site.config';
+import DotField from '~/components/DotField.astro';
+import { site, socials, projects, experience, focus, skills, HOME_POST_COUNT } from '~/site.config';
 
 const posts = (await getCollection('blog', ({ data }) => !data.draft))
   .sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf())
@@ -13,6 +14,10 @@ const posts = (await getCollection('blog', ({ data }) => !data.draft))
 ---
 
 <Base>
+  {/* Decorative band between the nav and the headline. Home page only -- on a
+      post it would be noise above the title. */}
+  <DotField class="h-24 sm:h-28" />
+
   {/* Hero: asymmetric split. Type carries the left, portrait anchors the right. */}
   <section class="mx-auto max-w-[1180px] px-5 pt-16 pb-20 sm:px-8 sm:pt-24 sm:pb-28">
     <div class="grid items-center gap-12 lg:grid-cols-[1.35fr_1fr] lg:gap-20">
@@ -35,7 +40,7 @@ const posts = (await getCollection('blog', ({ data }) => !data.draft))
         <div
           data-reveal
           style="--reveal-delay:200ms"
-          class="mt-9 flex items-center gap-6"
+          class="mt-9 flex flex-wrap items-center gap-x-6 gap-y-3"
         >
           {
             socials.map((s) => (
@@ -50,6 +55,18 @@ const posts = (await getCollection('blog', ({ data }) => !data.draft))
               </a>
             ))
           }
+
+          {/* Not in the socials array: that list is shared with the footer, and
+              a download is not a profile. The rule separates the two without
+              adding a second visual treatment to the row. */}
+          <a
+            href={site.resume}
+            download="Priyanshu-Naskar-Resume.pdf"
+            class="flex items-center gap-2 border-line text-sm text-muted transition-colors hover:text-accent sm:border-l sm:pl-6"
+          >
+            <Icon name="ph:file-arrow-down" width={17} height={17} />
+            <span>Resume</span>
+          </a>
         </div>
       </div>
 
@@ -150,12 +167,34 @@ const posts = (await getCollection('blog', ({ data }) => !data.draft))
     </div>
   </Section>
 
+  {/* Aligned label/value rows -- a spec table, not another prose grid. Keeps it
+      distinct from Focus above, which covers the same ground in sentences. */}
+  <Section id="skills" heading="Skills">
+    <div class="grid gap-8">
+      {
+        skills.map((row, i) => (
+          <div
+            data-reveal
+            style={`--reveal-delay:${Math.min(i, 6) * 60}ms`}
+            class="grid gap-2 sm:grid-cols-[10rem_1fr] sm:gap-8"
+          >
+            <h3 class="font-mono text-xs text-accent-dim">{row.group}</h3>
+            <p class="font-mono text-[13px] leading-relaxed text-muted">
+              {row.items.join('  /  ')}
+            </p>
+          </div>
+        ))
+      }
+    </div>
+  </Section>
+
   {/* Work supports the writing rather than leading. Compact, text only. */}
   <Section id="work" heading="Selected work">
     <WorkGrid projects={projects} />
   </Section>
 
-  {/* Full-width type block. The only contact CTA on the page. */}
+  {/* Full-width type block: email, resume, and the social links repeated as the
+      page's way out. */}
   <Section id="contact">
     <div data-reveal class="py-4">
       <h2 class="max-w-[18ch] text-3xl font-medium leading-[1.12] tracking-[-0.03em] text-ink sm:text-[2.5rem]">
@@ -164,18 +203,47 @@ const posts = (await getCollection('blog', ({ data }) => !data.draft))
       <p class="mt-5 max-w-[46ch] text-[17px] leading-relaxed text-muted">
         Open to interesting problems and good conversation about systems.
       </p>
-      <a
-        href={`mailto:${site.email}`}
-        class="group mt-8 inline-flex items-center gap-2.5 rounded-[4px] bg-accent px-5 py-3 text-sm font-medium text-bg transition-all duration-200 hover:bg-[#f2b155] active:translate-y-px"
-      >
-        {site.email}
-        <Icon
-          name="ph:arrow-up-right"
-          width={15}
-          height={15}
-          class="transition-transform duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5"
-        />
-      </a>
+      <div class="mt-8 flex flex-wrap items-center gap-3">
+        <a
+          href={`mailto:${site.email}`}
+          class="group inline-flex items-center gap-2.5 rounded-[4px] bg-accent px-5 py-3 text-sm font-medium text-bg transition-all duration-200 hover:bg-[#f2b155] active:translate-y-px"
+        >
+          {site.email}
+          <Icon
+            name="ph:arrow-up-right"
+            width={15}
+            height={15}
+            class="transition-transform duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5"
+          />
+        </a>
+
+        <a
+          href={site.resume}
+          download="Priyanshu-Naskar-Resume.pdf"
+          class="group inline-flex items-center gap-2.5 rounded-[4px] border border-line px-5 py-3 text-sm font-medium text-ink transition-colors duration-200 hover:border-accent hover:text-accent active:translate-y-px"
+        >
+          Resume
+          <Icon name="ph:arrow-down" width={15} height={15} />
+        </a>
+      </div>
+
+      {/* The hero links sit above the fold; repeating them here means the page
+          ends on a way out rather than a dead stop. */}
+      <div class="mt-10 flex flex-wrap items-center gap-6">
+        {
+          socials.map((s) => (
+            <a
+              href={s.href}
+              target="_blank"
+              rel="me noopener noreferrer"
+              class="flex items-center gap-2 text-sm text-muted transition-colors hover:text-accent"
+            >
+              <Icon name={s.icon} width={17} height={17} />
+              <span>{s.label}</span>
+            </a>
+          ))
+        }
+      </div>
     </div>
   </Section>
 </Base>
