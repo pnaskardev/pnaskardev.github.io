@@ -29,6 +29,7 @@
   },
   "devDependencies": {
     "@astrojs/check": "^0.9.10",
+    "@iconify-json/simple-icons": "^1.2.94",
     "@types/turndown": "^5.0.6",
     "typescript": "^6.0.3"
   }

@@ -174,21 +174,29 @@ const posts = (await getCollection('blog', ({ data }) => !data.draft))
     </div>
   </Section>
 
-  {/* Aligned label/value rows -- a spec table, not another prose grid. Keeps it
-      distinct from Focus above, which covers the same ground in sentences. */}
+  {/* Label column, then wrapping icon chips. A different layout family from
+      Focus above, which covers the same ground in sentences. */}
   <Section id="skills" heading="Skills">
-    <div class="grid gap-8">
+    <div class="grid gap-7">
       {
         skills.map((row, i) => (
           <div
             data-reveal
             style={`--reveal-delay:${Math.min(i, 6) * 60}ms`}
-            class="grid gap-2 sm:grid-cols-[10rem_1fr] sm:gap-8"
+            class="grid gap-3 sm:grid-cols-[9rem_1fr] sm:items-baseline sm:gap-6"
           >
             <h3 class="font-mono text-xs text-accent-dim">{row.group}</h3>
-            <p class="font-mono text-[13px] leading-relaxed text-muted">
-              {row.items.join('  /  ')}
-            </p>
+
+            <ul class="flex flex-wrap gap-x-5 gap-y-3">
+              {row.items.map((item) => (
+                <li class="flex items-center gap-2 text-[13px] text-muted">
+                  {/* Brand marks are monochrome, so they take the row's colour
+                      rather than dragging a second palette onto the page. */}
+                  <Icon name={item.icon} width={15} height={15} class="shrink-0 text-faint" />
+                  <span>{item.name}</span>
+                </li>
+              ))}
+            </ul>
           </div>
         ))
       }

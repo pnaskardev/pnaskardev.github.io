@@ -161,19 +161,64 @@ export const focus = [
 /**
  * Grouped so the list reads as a stack, not a keyword dump. Groups mirror the
  * resume; keep them in the same order so the two never disagree.
+ *
+ * Icons are `simple-icons` brand marks, which are monochrome and so inherit
+ * currentColor -- the palette stays locked. Things with no brand mark (SQL,
+ * REST, gRPC, WebSockets, Beckn) fall back to a Phosphor glyph rather than
+ * being dropped or left blank, so every row has an even rhythm.
  */
 export const skills = [
-  { group: 'Languages', items: ['Go', 'Python', 'TypeScript', 'JavaScript', 'SQL'] },
+  {
+    group: 'Languages',
+    items: [
+      { name: 'Go', icon: 'simple-icons:go' },
+      { name: 'Python', icon: 'simple-icons:python' },
+      { name: 'TypeScript', icon: 'simple-icons:typescript' },
+      { name: 'JavaScript', icon: 'simple-icons:javascript' },
+      { name: 'SQL', icon: 'ph:database' },
+    ],
+  },
   {
     group: 'Backend',
-    items: ['Django', 'Django REST', 'Celery', 'GoFiber', 'Express'],
+    items: [
+      { name: 'Django', icon: 'simple-icons:django' },
+      { name: 'Django REST', icon: 'simple-icons:django' },
+      { name: 'Celery', icon: 'simple-icons:celery' },
+      { name: 'GoFiber', icon: 'simple-icons:go' },
+      { name: 'Express', icon: 'simple-icons:express' },
+    ],
   },
-  { group: 'Data', items: ['PostgreSQL', 'MongoDB', 'Redis', 'Kafka', 'Elasticsearch'] },
+  {
+    group: 'Data',
+    items: [
+      { name: 'PostgreSQL', icon: 'simple-icons:postgresql' },
+      { name: 'MongoDB', icon: 'simple-icons:mongodb' },
+      { name: 'Redis', icon: 'simple-icons:redis' },
+      { name: 'Kafka', icon: 'simple-icons:apachekafka' },
+      { name: 'Elasticsearch', icon: 'simple-icons:elasticsearch' },
+    ],
+  },
   {
     group: 'Infrastructure',
-    items: ['Docker', 'AWS', 'GitHub Actions', 'Nginx', 'Prometheus', 'Grafana'],
+    items: [
+      { name: 'Docker', icon: 'simple-icons:docker' },
+      { name: 'AWS', icon: 'simple-icons:amazonwebservices' },
+      { name: 'GitHub Actions', icon: 'simple-icons:githubactions' },
+      { name: 'Nginx', icon: 'simple-icons:nginx' },
+      { name: 'Prometheus', icon: 'simple-icons:prometheus' },
+      { name: 'Grafana', icon: 'simple-icons:grafana' },
+    ],
   },
-  { group: 'APIs', items: ['REST', 'gRPC', 'WebSockets', 'Beckn', 'Swagger'] },
+  {
+    group: 'APIs',
+    items: [
+      { name: 'REST', icon: 'ph:brackets-curly' },
+      { name: 'gRPC', icon: 'ph:arrows-left-right' },
+      { name: 'WebSockets', icon: 'ph:plugs-connected' },
+      { name: 'Beckn', icon: 'ph:share-network' },
+      { name: 'Swagger', icon: 'simple-icons:swagger' },
+    ],
+  },
 ];
 
 /**
